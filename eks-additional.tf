@@ -5,31 +5,6 @@ data "template_file" "template-aws-auth" {
   }
 }
 
-resource "local_file" "create-auth" {
-  content = data.template_file.template-aws-auth.rendered
-  filename = "./tmp/aws-auth.yml"
-}
-
-resource "null_resource" "get-kubectl" {
-  triggers = {
-    always_run = timestamp()
-  }
-  depends_on = [local_file.create-auth]
-  provisioner "local-exec" {
-    command = "cd ./tmp && curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.16.0/bin/linux/amd64/kubectl && chmod +x ./kubectl"
-  }
-}
-
-resource "null_resource" "get-kubeconfig" {
-  triggers = {
-    always_run = timestamp()
-  }
-  depends_on = [aws_eks_cluster.eks-cluster, null_resource.get-kubectl]
-  provisioner "local-exec" {
-    command = "aws eks --region ${var.region} update-kubeconfig --name ${aws_eks_cluster.eks-cluster.name}"
-  }
-}
-
 resource "kubernetes_config_map" "aws-auth" {
   depends_on = [null_resource.get-kubeconfig, local_file.create-auth]
   metadata {
@@ -37,6 +12,44 @@ resource "kubernetes_config_map" "aws-auth" {
     namespace = "kube-system"
   }
   data = {
-    mapRoles = file("./tmp/aws-auth.yml")
+    mapRoles = data.template_file.template-aws-auth.rendered
+  }
+}
+
+resource "helm_release" "ingress" {
+  depends_on = [aws_eks_cluster.rewards-cluster, null_resource.get-kubeconfig]
+  chart = "nginx-ingress"
+  name = "nginx-ingress"
+  repository = "https://kubernetes-charts.storage.googleapis.com"
+  namespace = "ingress"
+  create_namespace = true
+  values = [
+    file("files/ingress-vars.yml")
+  ]
+}
+
+resource "helm_release" "spot-handler" {
+  chart = "aws-node-termination-handler"
+  name = "aws-node-termination-handler"
+  repository = "https://aws.github.io/eks-charts"
+  namespace = "kube-system"
+  set {
+    name = "nodeSelector.node\\.kubernetes\\.io/lifecycle"
+    value = "spot"
+  }
+}
+
+resource "helm_release" "eventrouter" {
+  chart = "eventrouter"
+  name = "eventrouter"
+  repository = "https://kubernetes-charts.storage.googleapis.com"
+  namespace = "kube-system"
+  set {
+    name = "sink"
+    value = "stdout"
+  }
+  set {
+    name = "nodeSelector.node\\.kubernetes\\.io/role"
+    value = "worker"
   }
 }

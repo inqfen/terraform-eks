@@ -56,7 +56,7 @@ module "spot-worker" {
   common-userdata = local.common-userdata
   kubelet_extra_args = var.worker.kubelet_extra_args
   bootstrap_extra_args = var.worker.bootstrap_extra_args
-  security-groups = [aws_security_group.common-security.id, aws_security_group.ingress.id]
+  security-groups = [aws_security_group.common-security.id]
   asg-count = 1
   asg-name = "sysadminka-worker"
   launch-template = {
@@ -76,5 +76,4 @@ module "spot-worker" {
   }
   availability-zones = [var.az-1, var.az-2]
   subnets = [aws_subnet.az-1-private.id, aws_subnet.az-2-private.id]
-
 }

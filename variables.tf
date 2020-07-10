@@ -47,6 +47,6 @@ variable "network" {
 variable "admin_access_list" {
   type = list(string)
   default = [
-    "1.1.1.1/32"
+    "95.82.232.202/32"
   ]
 }
