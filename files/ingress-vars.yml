@@ -1,0 +1,37 @@
+controller:
+  image:
+    tag: "0.32.0"
+  kind: "DaemonSet"
+  hostNetwork: true
+  nodeSelector:
+    role: "ingress"
+  daemonset:
+    useHostPort: true
+  metrics:
+    enabled: true
+  config:
+    http-redirect-code: "301"
+    server-name-hash-bucket-size: "256"
+    use-forwarded-headers: "true"
+    log-format-escape-json: "true"
+    log-format-upstream: '{
+    "ingress": "true",
+    "body_bytes_sent": "$body_bytes_sent",
+    "bytes_sent": "$bytes_sent",
+    "vhost": "$host",
+    "http_referrer": "$http_referer",
+    "http_user_agent": "$http_user_agent",
+    "http_x_forwarded_for": "$proxy_add_x_forwarded_for",
+    "path": "$uri",
+    "remote_addr": "$proxy_protocol_addr",
+    "remote_user": "$remote_user",
+    "req_id": "$req_id",
+    "request_length": "$request_length",
+    "request_method": "$request_method",
+    "request_proto": "$server_protocol",
+    "request_query": "$args",
+    "request_time": "$request_time",
+    "request": "$request",
+    "response_status": "$status",
+    "time": "$time_iso8601",
+    "upstream_addr": "$upstream_addr"}'
