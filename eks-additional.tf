@@ -6,7 +6,6 @@ data "template_file" "template-aws-auth" {
 }
 
 resource "kubernetes_config_map" "aws-auth" {
-  depends_on = [null_resource.get-kubeconfig, local_file.create-auth]
   metadata {
     name = "aws-auth"
     namespace = "kube-system"
@@ -17,7 +16,6 @@ resource "kubernetes_config_map" "aws-auth" {
 }
 
 resource "helm_release" "ingress" {
-  depends_on = [aws_eks_cluster.rewards-cluster, null_resource.get-kubeconfig]
   chart = "nginx-ingress"
   name = "nginx-ingress"
   repository = "https://kubernetes-charts.storage.googleapis.com"
