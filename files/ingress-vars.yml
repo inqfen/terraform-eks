@@ -1,6 +1,6 @@
 controller:
   image:
-    tag: "0.32.0"
+    tag: "v0.34.1"
   kind: "DaemonSet"
   hostNetwork: true
   nodeSelector:
