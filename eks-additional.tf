@@ -50,4 +50,5 @@ resource "helm_release" "eventrouter" {
     name = "nodeSelector.node\\.kubernetes\\.io/role"
     value = "worker"
   }
+  timeout = 600
 }

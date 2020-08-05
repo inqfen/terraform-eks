@@ -4,7 +4,7 @@ controller:
   kind: "DaemonSet"
   hostNetwork: true
   nodeSelector:
-    role: "ingress"
+    node.kubernetes.io/role: "ingress"
   daemonset:
     useHostPort: true
   metrics:
