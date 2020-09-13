@@ -4,6 +4,9 @@ resource "aws_security_group" "common-security" {
   name = "common-security"
   description = "eks-common"
   vpc_id = aws_vpc.cluster-vpc.id
+  tags = {
+    "kubernetes.io/cluster/${var.cluster-name}" = "owned"
+  }
 }
 
 resource "aws_security_group_rule" "allow-admin" {

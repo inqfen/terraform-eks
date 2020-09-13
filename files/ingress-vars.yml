@@ -1,5 +1,7 @@
 controller:
   image:
+    registry: us.gcr.io
+    repository: k8s-artifacts-prod/ingress-nginx/controller
     tag: "v0.34.1"
   kind: "DaemonSet"
   hostNetwork: true
